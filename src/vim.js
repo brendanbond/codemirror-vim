@@ -1038,6 +1038,7 @@ export function initVim(CodeMirror) {
       defineMotion: defineMotion,
       defineAction: defineAction,
       defineOperator: defineOperator,
+      alterOperator: alterOperator,
       mapCommand: mapCommand,
       _mapCommand: _mapCommand,
 
@@ -2617,6 +2618,16 @@ export function initVim(CodeMirror) {
 
     function defineOperator(name, fn) {
       operators[name] = fn;
+    }
+
+    function alterOperator(name, fn) {
+      if (operators[name]) {
+        const oldFn = operators[name];
+        operators[name] = function(cm, prevArgs, prevRanges, prevOldAnchor, prevNewHead) {
+          const { args, ranges, oldAnchor, newHead } = fn(cm, prevArgs, prevRanges, prevOldAnchor, prevNewHead);
+          return oldFn(cm, args, ranges, oldAnchor, newHead);
+        };
+      }
     }
 
     var actions = {
